@@ -13,11 +13,12 @@ jobs:
       - name: Forráskód letöltése
         uses: actions/checkout@v4
 
-      - name: Tiszta AndroidManifest létrehozása
+      - name: Tiszta XML fájlok generálása
         run: |
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://android.com">
+          python3 -c '
+          ns = "http" + "://://android.com"
+          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="{ns}">
               <uses-feature android:name="android.hardware.usb.host" android:required="false" />
               <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
               <queries>
@@ -46,7 +47,14 @@ jobs:
                   </activity>
               </application>
           </manifest>
-          EOF
+          """
+          open("app/src/main/AndroidManifest.xml", "w").write(manifest)
+          with open("app/src/main/res/layout/activity_main.xml", "r") as f:
+              layout = f.read()
+          if "://android.com" not in layout:
+              layout = layout.replace("<LinearLayout", f"<LinearLayout xmlns:android=\"{ns}\"", 1)
+              open("app/src/main/res/layout/activity_main.xml", "w").write(layout)
+          '
 
       - name: Java 17 beállítása
         uses: actions/setup-java@v4
