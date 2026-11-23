@@ -2,7 +2,7 @@ name: RADIO WORLD APK Fordítás
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -10,67 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Forráskód letöltése
+      - name: Forraskod letoltese
         uses: actions/checkout@v4
 
-      - name: Tiszta XML fájlok generálása
+      - name: Manifest es Layout javitasa
         run: |
-          python3 -c '
-          ns = "http" + "://://android.com"
-          manifest = f"""<?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="{ns}">
-              <uses-feature android:name="android.hardware.usb.host" android:required="false" />
-              <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-              <queries>
-                  <package android:name="com.miui.fm" />
-                  <package android:name="com.mediatek.fmradio" />
-              </queries>
-              <application
-                  android:allowBackup="true"
-                  android:label="RADIO WORLD"
-                  android:supportsRtl="true"
-                  android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:screenOrientation="portrait">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                      <intent-filter>
-                          <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-                      </intent-filter>
-                      <meta-data
-                          android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                          android:resource="@xml/device_filter" />
-                  </activity>
-              </application>
-          </manifest>
-          """
-          open("app/src/main/AndroidManifest.xml", "w").write(manifest)
-          with open("app/src/main/res/layout/activity_main.xml", "r") as f:
-              layout = f.read()
-          if "://android.com" not in layout:
-              layout = layout.replace("<LinearLayout", f"<LinearLayout xmlns:android=\"{ns}\"", 1)
-              open("app/src/main/res/layout/activity_main.xml", "w").write(layout)
-          '
+          echo "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPG1hbmlmZXN0IHhtbG5zOmFuZHJvaWQ9Imh0dHA6Ly9zY2hlbWFzLmFuZHJvaWQuY29tL2Fway9yZXMvYW5kcm9pZCI+CiAgICA8dXNlcy1mZWF0dXJlIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5oYXJkd2FyZS51c2IuaG9zdCIgYW5kcm9pZDpyZXF1aXJlZD0iZmFsc2UiIC8+CiAgICA8dXNlcy1wZXJtaXNzaW9uIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5wZXJtaXNzaW9uLk1PRElGWV9BVURJT19TRVRUSU5HUyIgLz4KICAgIDxxdWVyaWVzPgogICAgICAgIDxwYWNrYWdlIGFuZHJvaWQ6bmFtZT0iY29tLm1pdWkuZm0iIC8+CiAgICAgICAgPHBhY2thZ2UgYW5kcm9pZDpuYW1lPSJjb20ubWVkaWF0ZWsuZm1yYWRpbyIgLz4KICAgIDwvcXVlcmllcz4KICAgIDxhcHBsaWNhdGlvbgogICAgICAgIGFuZHJvaWQ6YWxsb3dCYWNrdXA9InRydWUiCiAgICAgICAgYW5kcm9pZDpsYWJlbD0iUkFESU8gV09STEQiCiAgICAgICAgYW5kcm9pZDpzdXBwb3J0c1J0bD0idHJ1ZSIKICAgICAgICBhbmRyb2lkOnRoZW1lPSJAc3R5bGUvVGhlbWUuQXBwQ29tcGF0LkRheU5pZ2h0LkRhcmtBY3Rpb25CYXIiPgogICAgICAgIDxhY3Rpdml0eQogICAgICAgICAgICBhbmRyb2lkOm5hbWU9Ii5NYWluQWN0aXZpdHkiCiAgICAgICAgICAgIGFuZHJvaWQ6ZXhwb3J0ZWQ9InRydWUiCiAgICAgICAgICAgIGFuZHJvaWQ6c2NyZWVuT3JpZW50YXRpb249InBvcnRyYWl0Ij4KICAgICAgICAgICAgPGludGVudC1maWx0ZXI+CiAgICAgICAgICAgICAgICA8YWN0aW9uIGFuZHJvaWQ6bmFtZT0iYW5kcm9pZC5pbnRlbnQuYWN0aW9uLk1BSU4iIC8+CiAgICAgICAgICAgICAgICA8Y2F0ZWdvcnkgYW5kcm9pZDpuYW1lPSJhbmRyb2lkLmludGVudC5jYXRlZ29yeS5MQVVOQ0hFUiIgLz4KICAgICAgICAgICAgPC9pbnRlbnQtZmlsdGVyPgogICAgICAgICAgICA8aW50ZW50LWZpbHRlcj4KICAgICAgICAgICAgICAgIDxhY3Rpb24gYW5kcm9pZDpuYW1lPSJhbmRyb2lkLmhhcmR3YXJlLnVzYi5hY3Rpb24uVVNCX0RFVklDRV9BVFRBQ0hFRCIgLz4KICAgICAgICAgICAgPC9pbnRlbnQtZmlsdGVyPgogICAgICAgICAgICA8bWV0YS1kYXRhCiAgICAgICAgICAgICAgICBhbmRyb2lkOm5hbWU9ImFuZHJvaWQuaGFyZHdhcmUudXNiLmFjdGlvbi5VU0JfREVWSUNFX0FUVEFDSEVEIgogICAgICAgICAgICAgICAgYW5kcm9pZDpyZXNvdXJjZT0iQHhtbC9kZXZpY2VfZmlsdGVyIiAvPgogICAgICAgIDwvYWN0aXZpdHk+CiAgICA8L2FwcGxpY2F0aW9uPgo8L21hbmlmZXN0Pgo=" | base64 -d > app/src/main/AndroidManifest.xml
+          sed -i 's|<LinearLayout|<LinearLayout xmlns:android="http://android.com"|g' app/src/main/res/layout/activity_main.xml
 
-      - name: Java 17 beállítása
+      - name: Java 17 beallitasa
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
-      - name: Gradle beállítása és APK fordítás
+      - name: Gradle beallitasa es APK forditas
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '8.4'
+          gradle-version: 8.4
 
-      - name: Debug APK lefordítása
+      - name: Debug APK leforditasa
         run: gradle assembleDebug
 
-      - name: Kész APK feltöltése letöltéshez
+      - name: Kesz APK feltoltese letolteshez
         uses: actions/upload-artifact@v4
         with:
           name: RadioWorld-Redmi12-v3.1
